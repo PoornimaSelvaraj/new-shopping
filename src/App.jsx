@@ -1,766 +1,742 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-const MODELS = [
-  { id: "black", image: `${import.meta.env.BASE_URL}blackdress.png` },
-  { id: "cream", image: `${import.meta.env.BASE_URL}creamdress.png` },
-  { id: "blue", image: `${import.meta.env.BASE_URL}bluedress.png` },
-  { id: "cream-2", image: `${import.meta.env.BASE_URL}creamdress.png` },
-];
-
-const COLLECTIONS = [
+const ITEMS = [
   {
-    title: "AUTUMN WINTER",
-    description:
-      "Elevate your everyday style with our latest collection. Discover the perfect blend of modern fashion and timeless elegance.",
-    products: [
-      {
-        name: "LEATHER TOTE BAG",
-        price: "$145.00",
-        image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500&auto=format&fit=crop",
-      },
-      {
-        name: "PREMIUM COSMETICS SET",
-        price: "$99.00",
-        image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&auto=format&fit=crop",
-      },
-      {
-        name: "GOLD CHAIN NECKLACE",
-        price: "$120.00",
-        image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=500&auto=format&fit=crop",
-      },
-    ],
+    name: "Cozy",
+    it: "Knitwear",
+    tag: "ALL SEASON",
+    desc: "Soft, warm, and endlessly huggable. Layers made for slow mornings.",
+    color: "#c9a77c",
+    img: `${import.meta.env.BASE_URL}crazy.png`
   },
   {
-    title: "WINTER COLLECTION",
-    description:
-      "Stay ahead of the trend with our premium winter collection. Find styles that make every moment special.",
-    products: [
-      {
-        name: "DESIGNER TOTE BAG",
-        price: "$160.00",
-        image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=500&auto=format&fit=crop",
-      },
-      {
-        name: "EVENING GOWN",
-        price: "$180.00",
-        image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&auto=format&fit=crop",
-      },
-      {
-        name: "CLASSIC HEELS",
-        price: "$110.00",
-        image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&auto=format&fit=crop",
-      },
-    ],
+    name: "The White",
+    it: "Vow",
+    tag: "BRIDAL",
+    desc: "A capsule of lace and light. The moment you've always imagined.",
+    color: "#e8e2d8",
+    img: `${import.meta.env.BASE_URL}white.png`
   },
   {
-    title: "SPRING SUMMER",
-    description:
-      "Picture-perfect and effortlessly stylish. Discover fresh designs made for your everyday moments.",
-    products: [
-      {
-        name: "RUFFLED ROSETTE TOP",
-        price: "$75.00",
-        image: "https://images.unsplash.com/photo-1551163943-3f6a855d1153?w=500&auto=format&fit=crop",
-      },
-      {
-        name: "SNAPSHOT CAMERA BAG",
-        price: "$145.00",
-        image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&auto=format&fit=crop",
-      },
-      {
-        name: "CHARM NECKLACE",
-        price: "$65.00",
-        image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=500&auto=format&fit=crop",
-      },
-    ],
+    name: "Active",
+    it: "Edit",
+    tag: "PERFORMANCE",
+    desc: "Performance pieces built to move with you. Wear them well.",
+    color: "#3d5a80",
+    img: `${import.meta.env.BASE_URL}active.png`
   },
+  {
+    name: "Evening",
+    it: "Gown",
+    tag: "EVENING",
+    desc: "Flowing silhouettes and rich velvet. Entrance-worthy, every time.",
+    color: "#1f5a3a",
+    img: `${import.meta.env.BASE_URL}green.png`
+  },
+  {
+    name: "Street",
+    it: "Layers",
+    tag: "URBAN",
+    desc: "Easy denim and confident lines for the street ahead.",
+    color: "#6f93b8",
+    img: `${import.meta.env.BASE_URL}strret.png`
+  }
 ];
 
-const POSITIONS = [
-  "model-front",
-  "model-back-1",
-  "model-back-2",
-  "model-ghost",
-];
+const styles = `
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.lumiere {
+  --bg: #ecebe7;
+  --ink: #2b2d2a;
+  --card: #3a3c39;
+  --cardtxt: #f4f2ee;
+  --gap: 130px;
+  --char-h: 56dvh;
+  --char-max: 520px;
+  --char-top: 48%;
+  --card-w: 230px;
+  --card-pad: 25px 22px;
+  --card-title: 27px;
+  --card-text: 11px;
+  --nav-fs: 11px;
+  --nav-pad: 10px 17px;
+  --head-fs: 18px;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, sans-serif;
+  touch-action: pan-y;
+}
+
+.lumiere-header {
+  position: absolute;
+  top: max(25px, env(safe-area-inset-top));
+  left: 30px;
+  z-index: 100;
+  font-family: "Cormorant Garamond", serif;
+  letter-spacing: .2em;
+  font-size: var(--head-fs);
+}
+
+.lumiere-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.lumiere-glow {
+  position: absolute;
+  left: 50%;
+  top: var(--char-top);
+  width: 46vmin;
+  height: 46vmin;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.65), transparent 70%);
+  filter: blur(10px);
+}
+
+.lumiere-chars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.lumiere-char {
+  position: absolute;
+  left: 50%;
+  top: var(--char-top);
+  height: var(--char-h);
+  max-height: var(--char-max);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    transform .8s cubic-bezier(.22,.9,.3,1),
+    opacity .6s,
+    filter .6s;
+  will-change: transform;
+}
+
+.lumiere-char img,
+.lumiere-char svg {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 18px rgba(0,0,0,.16));
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.lumiere-card {
+  position: absolute;
+  right: 5%;
+  top: var(--char-top);
+  width: var(--card-w);
+  padding: var(--card-pad);
+  border-radius: 19px;
+  background: var(--card);
+  color: var(--cardtxt);
+  box-shadow: 0 20px 40px rgba(0,0,0,.18);
+  text-align: center;
+  z-index: 30;
+  transform: translateY(-50%);
+  transition: opacity .4s;
+}
+
+.lumiere-card.out {
+  opacity: 0;
+}
+
+.lumiere-card small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: .3em;
+  opacity: .55;
+  margin-bottom: 14px;
+}
+
+.lumiere-card h2 {
+  margin-bottom: 12px;
+  font: 500 var(--card-title)/1.1 "Cormorant Garamond", serif;
+}
+
+.lumiere-card h2 em {
+  display: block;
+}
+
+.lumiere-card p {
+  font-size: var(--card-text);
+  line-height: 1.8;
+  opacity: .75;
+}
+
+.lumiere-nav {
+  position: absolute;
+  bottom: max(25px, env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 12px;
+  z-index: 100;
+}
+
+.lumiere-nav button {
+  border: 0;
+  background: #fff;
+  color: #555;
+  font: 500 var(--nav-fs) Inter, sans-serif;
+  padding: var(--nav-pad);
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  opacity: .65;
+  transition: .3s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.lumiere-nav button.on {
+  opacity: 1;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 14px rgba(0,0,0,.15);
+}
+
+.lumiere-dust i {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #999;
+  opacity: .4;
+}
+
+/* EXTRA LARGE SCREEN */
+
+@media (min-width: 1600px) {
+  .lumiere {
+    --gap: 165px;
+    --char-max: 680px;
+    --card-w: 270px;
+    --card-pad: 30px 26px;
+    --card-title: 32px;
+    --card-text: 12.5px;
+    --nav-fs: 12.5px;
+    --nav-pad: 12px 22px;
+    --head-fs: 21px;
+  }
+
+  .lumiere-header {
+    left: 48px;
+    top: 34px;
+  }
+
+  .lumiere-card {
+    right: 7%;
+  }
+}
+
+/* SMALL LAPTOP */
+
+@media (max-width: 1200px) {
+  .lumiere {
+    --gap: 105px;
+    --card-w: 215px;
+    --card-pad: 22px 18px;
+    --card-title: 25px;
+  }
+
+  .lumiere-card {
+    right: 3%;
+  }
+}
+
+/* TABLET LANDSCAPE */
+
+@media (max-width: 1000px) {
+  .lumiere {
+    --gap: 80px;
+    --char-h: 46dvh;
+    --card-w: 188px;
+    --card-pad: 18px 14px;
+    --card-title: 22px;
+    --card-text: 10.5px;
+    --nav-fs: 10.5px;
+    --nav-pad: 9px 14px;
+  }
+
+  .lumiere-card {
+    right: 2%;
+  }
+
+  .lumiere-header {
+    left: 24px;
+  }
+}
+
+/* TABLET AND MOBILE */
+
+@media (max-width: 768px) {
+  .lumiere {
+    --gap: clamp(100px, 28vw, 165px);
+    --char-top: 50%;
+    --char-h: 34dvh;
+    --char-max: 280px;
+    --card-w: min(320px, 88vw);
+    --card-pad: 19px 20px;
+    --card-title: 25px;
+    --card-text: 11px;
+    --nav-fs: 10px;
+    --nav-pad: 9px 13px;
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: max(65px, calc(env(safe-area-inset-top) + 45px));
+    padding-bottom: 20px;
+    touch-action: pan-y;
+  }
+
+  .lumiere-header {
+    position: absolute;
+    top: max(18px, env(safe-area-inset-top));
+    left: 20px;
+    font-size: 16px;
+  }
+
+  .lumiere-stage {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .lumiere-glow {
+    top: 50%;
+    width: 65vmin;
+    height: 65vmin;
+  }
+
+  .lumiere-chars {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: clamp(230px, 36dvh, 310px);
+    flex-shrink: 0;
+  }
+
+  .lumiere-char {
+    top: 50%;
+    height: var(--char-h);
+  }
+
+  .lumiere-card {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    transform: none;
+    width: var(--card-w);
+    margin: 35px auto 0;
+    padding: var(--card-pad);
+    flex-shrink: 0;
+  }
+
+  .lumiere-nav {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    width: 100%;
+    max-width: 520px;
+    margin: 22px auto 0;
+    padding: 0 12px;
+    gap: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  .lumiere-nav button {
+    font-size: var(--nav-fs);
+    padding: var(--nav-pad);
+  }
+}
+
+/* SMALL MOBILE */
+
+@media (max-width: 480px) {
+  .lumiere {
+    --gap: clamp(95px, 27vw, 125px);
+    --char-h: 29dvh;
+    --char-max: 230px;
+    --card-w: 88vw;
+    --card-pad: 16px 16px;
+    --card-title: 23px;
+    --card-text: 10.5px;
+    --nav-fs: 9px;
+    --nav-pad: 8px 10px;
+    padding-top: max(60px, calc(env(safe-area-inset-top) + 42px));
+    padding-bottom: 18px;
+  }
+
+  .lumiere-header {
+    left: 16px;
+  }
+
+  .lumiere-chars {
+    height: 32dvh;
+    min-height: 210px;
+  }
+
+  .lumiere-glow {
+    width: 70vmin;
+    height: 70vmin;
+  }
+
+  .lumiere-card {
+    margin-top: 45px;
+    border-radius: 16px;
+  }
+
+  .lumiere-card small {
+    margin-bottom: 9px;
+  }
+
+  .lumiere-card h2 {
+    margin-bottom: 8px;
+  }
+
+  .lumiere-card p {
+    line-height: 1.6;
+  }
+
+  .lumiere-nav {
+    margin-top: 20px;
+    padding: 0 8px;
+    gap: 7px;
+  }
+}
+
+/* VERY SMALL PHONES */
+
+@media (max-width: 360px) {
+  .lumiere {
+    --gap: 95px;
+    --char-h: 26dvh;
+    --char-max: 195px;
+    --card-w: 90vw;
+    --card-title: 21px;
+    --card-text: 10px;
+    --nav-fs: 8.5px;
+    --nav-pad: 7px 9px;
+  }
+
+  .lumiere-chars {
+    height: 29dvh;
+    min-height: 195px;
+  }
+
+  .lumiere-card {
+    margin-top: 45px;
+  }
+
+  .lumiere-nav {
+    gap: 6px;
+    margin-top: 17px;
+  }
+}
+
+/* PHONE LANDSCAPE */
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .lumiere {
+    --gap: 90px;
+    --char-top: 50%;
+    --char-h: 62dvh;
+    --char-max: 280px;
+    --card-w: 190px;
+    --card-pad: 12px;
+    --card-title: 19px;
+    --card-text: 9px;
+    --nav-fs: 9px;
+    --nav-pad: 6px 10px;
+    --head-fs: 14px;
+  }
+
+  .lumiere-header {
+    top: 10px;
+    left: 15px;
+  }
+
+  .lumiere-glow {
+    width: 60vmin;
+    height: 60vmin;
+  }
+
+  .lumiere-card {
+    top: 50%;
+    left: auto;
+    right: 3%;
+    transform: translateY(-50%);
+  }
+
+  .lumiere-card small {
+    margin-bottom: 5px;
+  }
+
+  .lumiere-card h2 {
+    margin-bottom: 5px;
+  }
+
+  .lumiere-card p {
+    line-height: 1.4;
+  }
+
+  .lumiere-nav {
+    bottom: 6px;
+  }
+}
+
+/* HOVER */
+
+@media (hover: hover) {
+  .lumiere-nav button:hover {
+    opacity: 1;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 14px rgba(0,0,0,.15);
+  }
+}
+
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+  .lumiere-char,
+  .lumiere-card,
+  .lumiere-nav button {
+    transition-duration: .01s;
+  }
+}
+
+/* DARK MODE */
+
+@media (prefers-color-scheme: dark) {
+  .lumiere {
+    --bg: #1c1d1b;
+    --ink: #eee;
+    --card: #e9e7e2;
+    --cardtxt: #222;
+  }
+
+  .lumiere-glow {
+    background: radial-gradient(circle, rgba(255,255,255,.12), transparent 70%);
+  }
+
+  .lumiere-nav button {
+    background: #2c2e2b;
+    color: #ddd;
+  }
+}
+`;
+
+function Figure({ color }) {
+  return (
+    <svg viewBox="0 0 100 240" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="28" r="20" fill="#f1cfb0" />
+      <path d="M30 24q20-26 40 0v8H30z" fill="#6b4630" />
+      <path d="M34 54h32l16 150H18z" fill={color} />
+      <rect x="38" y="200" width="9" height="34" rx="4" fill="#d9b898" />
+      <rect x="53" y="200" width="9" height="34" rx="4" fill="#d9b898" />
+    </svg>
+  );
+}
 
 export default function App() {
-  const [tick, setTick] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [cur, setCur] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [cardOut, setCardOut] = useState(false);
+
+  const timer = useRef(null);
+  const touchStart = useRef(null);
+
+  const [dust] = useState(() =>
+    Array.from({ length: 28 }, () => ({
+      left: Math.random() * 100,
+      top: Math.random() * 100
+    }))
+  );
+
+  const go = (index) => {
+    if (index === cur || busy) return;
+
+    clearTimeout(timer.current);
+    setBusy(true);
+    setCardOut(true);
+    setCur(index);
+
+    timer.current = setTimeout(() => {
+      setCardOut(false);
+      setBusy(false);
+    }, 420);
+  };
 
   useEffect(() => {
-    if (paused) return;
+    const handleKey = (e) => {
+      if (e.key === "ArrowRight") {
+        go((cur + 1) % ITEMS.length);
+      }
 
-    const timer = setInterval(() => {
-      setTick((t) => t + 1);
-    }, 3000);
+      if (e.key === "ArrowLeft") {
+        go((cur - 1 + ITEMS.length) % ITEMS.length);
+      }
+    };
 
-    return () => clearInterval(timer);
-  }, [paused]);
+    window.addEventListener("keydown", handleKey);
 
-  const step = tick % COLLECTIONS.length;
-  const collection = COLLECTIONS[step];
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [cur, busy]);
 
-  const goToCollection = (index) => {
-    setTick(
-      (t) =>
-        t +
-        ((index - (t % COLLECTIONS.length) + COLLECTIONS.length) %
-          COLLECTIONS.length)
-    );
-    setPaused(false);
-  };
+  useEffect(() => {
+    return () => clearTimeout(timer.current);
+  }, []);
+
+  const current = ITEMS[cur];
+  const half = Math.floor(ITEMS.length / 2);
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap');
-
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
-        html {
-          width: 100%;
-          min-height: 100%;
-          scroll-behavior: smooth;
-        }
-
-        body {
-          width: 100%;
-          min-height: 100vh;
-          font-family: 'DM Sans', sans-serif;
-          background: #c69a70;
-        }
-
-        #root {
-          width: 100%;
-          min-height: 100vh;
-        }
-
-        .page {
-          width: 100%;
-          min-height: 100vh;
-          background: #c69a70;
-          overflow: hidden;
-        }
-
-        .hero {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) 210px;
-          width: 100%;
-          min-height: 100vh;
-          background: #f9fafb;
-        }
-
-        .stage {
-          position: relative;
-          min-width: 0;
-          height: 100vh;
-          min-height: 570px;
-          overflow: hidden;
-          background: linear-gradient(110deg, #fbfcfd, #edf2f6);
-        }
-
-        .stage-content {
-          position: absolute;
-          top: 75px;
-          left: 5%;
-          width: 290px;
-          max-width: 42%;
-          z-index: 8;
-        }
-
-        .stage-content h1 {
-          font-size: clamp(25px, 3vw, 42px);
-          font-weight: 400;
-          letter-spacing: 3px;
-          color: #92969c;
-          line-height: 1.2;
-        }
-
-        .stage-content p {
-          margin-top: 12px;
-          font-size: 11px;
-          line-height: 1.8;
-          color: #999da2;
-          max-width: 260px;
-        }
-
-        .models {
-          position: absolute;
-          inset: 0;
-        }
-
-        .bg-model {
-          position: absolute;
-          bottom: 0;
-          width: 30%;
-          height: 78%;
-          object-fit: contain;
-          object-position: bottom center;
-          transition:
-            right 1.1s ease-in-out,
-            height 1.1s ease-in-out,
-            opacity 1.1s ease-in-out,
-            filter 1.1s ease-in-out;
-          will-change: right, height, filter, opacity;
-          pointer-events: none;
-          user-select: none;
-        }
-
-        .model-front {
-          right: 3%;
-          height: 83%;
-          z-index: 4;
-          opacity: 1;
-          filter: none;
-        }
-
-        .model-back-1 {
-          right: 23%;
-          height: 75%;
-          z-index: 3;
-          opacity: .9;
-          filter: blur(.5px);
-        }
-
-        .model-back-2 {
-          right: 43%;
-          height: 66%;
-          z-index: 2;
-          opacity: .68;
-          filter: blur(1.5px);
-        }
-
-        .model-ghost {
-          right: 63%;
-          height: 58%;
-          z-index: 1;
-          opacity: .28;
-          filter: blur(2.5px);
-        }
-
-        .bg-model.entering {
-          transition: none;
-          animation: modelEnter 1.1s ease-out;
-        }
-
-        @keyframes modelEnter {
-          from {
-            opacity: 0;
-            transform: translateX(60px);
-          }
-
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        .stage-controls {
-          position: absolute;
-          bottom: 25px;
-          left: 5%;
-          z-index: 10;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .pause-button {
-          width: 35px;
-          height: 35px;
-          border: 1px solid #a5a9ad;
-          border-radius: 50%;
-          background: transparent;
-          cursor: pointer;
-          color: #555;
-        }
-
-        .stage-controls span {
-          font-size: 10px;
-          letter-spacing: 2px;
-          color: #777;
-        }
-
-        .sidebar {
-          width: 100%;
-          min-height: 100vh;
-          background: white;
-          padding: 30px 15px;
-          border-left: 1px solid #eee;
-        }
-
-        .side-title {
-          font-size: 10px;
-          letter-spacing: 2px;
-          color: #a19a94;
-          margin-bottom: 25px;
-        }
-
-        .product {
-          padding: 15px 0 20px;
-          border-bottom: 1px solid #eee;
-        }
-
-        .product-image {
-          width: 100%;
-          height: 150px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          overflow: hidden;
-          background: #f7f5f2;
-        }
-
-        .product-image img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-          transition: transform .4s ease;
-        }
-
-        .product:hover .product-image img {
-          transform: scale(1.07);
-        }
-
-        .product h3 {
-          margin-top: 10px;
-          font-size: 9px;
-          font-weight: 600;
-          color: #555;
-          letter-spacing: .5px;
-        }
-
-        .product p {
-          margin-top: 6px;
-          font-size: 10px;
-          color: #aaa;
-        }
-
-        .collection-footer {
-          width: 100%;
-          min-height: 75px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 18px;
-          padding: 20px 10px;
-          flex-wrap: wrap;
-        }
-
-        .collection-dot {
-          width: 9px;
-          height: 9px;
-          flex-shrink: 0;
-          border: none;
-          border-radius: 50%;
-          background: #e5c9ad;
-          cursor: pointer;
-          transition: .3s;
-        }
-
-        .collection-dot.active {
-          background: #fff;
-          transform: scale(1.5);
-        }
-
-        .collection-label {
-          color: white;
-          font-size: 11px;
-          letter-spacing: 3px;
-          margin-left: 8px;
-        }
-
-        @media (min-width: 1400px) {
-          .hero {
-            grid-template-columns: minmax(0, 1fr) 250px;
-          }
-
-          .stage-content {
-            top: 100px;
-          }
-
-          .bg-model {
-            width: 29%;
-          }
-
-          .model-front {
-            height: 88%;
-          }
-
-          .model-back-1 {
-            height: 78%;
-          }
-
-          .model-back-2 {
-            height: 68%;
-          }
-
-          .model-ghost {
-            height: 60%;
-          }
-
-          .sidebar {
-            padding: 35px 18px;
-          }
-
-          .product-image {
-            height: 180px;
-          }
-        }
-
-        @media (max-width: 1100px) {
-          .hero {
-            grid-template-columns: minmax(0, 1fr) 180px;
-          }
-
-          .stage-content {
-            left: 4%;
-            max-width: 38%;
-          }
-
-          .bg-model {
-            width: 33%;
-          }
-
-          .model-front {
-            right: 1%;
-          }
-
-          .model-back-1 {
-            right: 22%;
-          }
-
-          .model-back-2 {
-            right: 43%;
-          }
-
-          .model-ghost {
-            right: 64%;
-          }
-
-          .product-image {
-            height: 120px;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .hero {
-            grid-template-columns: minmax(0, 1fr) 155px;
-            min-height: 100vh;
-          }
-
-          .stage {
-            height: 100vh;
-            min-height: 550px;
-          }
-
-          .stage-content {
-            top: 65px;
-            left: 20px;
-            width: 230px;
-            max-width: 40%;
-          }
-
-          .stage-content h1 {
-            font-size: 27px;
-          }
-
-          .stage-content p {
-            font-size: 9px;
-          }
-
-          .bg-model {
-            width: 37%;
-          }
-
-          .model-front {
-            right: 0;
-            height: 77%;
-          }
-
-          .model-back-1 {
-            right: 20%;
-            height: 69%;
-          }
-
-          .model-back-2 {
-            right: 40%;
-            height: 60%;
-          }
-
-          .model-ghost {
-            right: 60%;
-            height: 53%;
-          }
-
-          .sidebar {
-            padding: 20px 10px;
-          }
-
-          .product-image {
-            height: 100px;
-          }
-        }
-
-        @media (max-width: 600px) {
-          .hero {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-          }
-
-          .stage {
-            width: 100%;
-            height: 85vh;
-            min-height: 480px;
-            max-height: 700px;
-          }
-
-          .stage-content {
-            top: 35px;
-            left: 18px;
-            width: 210px;
-            max-width: 55%;
-          }
-
-          .stage-content h1 {
-            font-size: 25px;
-            letter-spacing: 2px;
-          }
-
-          .stage-content p {
-            max-width: 190px;
-            font-size: 9px;
-          }
-
-          .bg-model {
-            width: 43%;
-            height: 70%;
-          }
-
-          .model-front {
-            right: 0;
-            height: 76%;
-          }
-
-          .model-back-1 {
-            right: 19%;
-            height: 66%;
-          }
-
-          .model-back-2 {
-            right: 38%;
-            height: 57%;
-          }
-
-          .model-ghost {
-            right: 57%;
-            height: 49%;
-          }
-
-          .stage-controls {
-            left: 15px;
-            bottom: 15px;
-            gap: 8px;
-          }
-
-          .stage-controls span {
-            font-size: 8px;
-            letter-spacing: 1px;
-          }
-
-          .sidebar {
-            min-height: auto;
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
-            padding: 22px 12px;
-            border-left: none;
-            border-top: 1px solid #eee;
-          }
-
-          .side-title {
-            grid-column: 1 / -1;
-            margin-bottom: 0;
-          }
-
-          .product {
-            min-width: 0;
-            padding: 0 0 12px;
-          }
-
-          .product-image {
-            height: 115px;
-          }
-
-          .product h3 {
-            font-size: 8px;
-            line-height: 1.5;
-          }
-
-          .product p {
-            font-size: 9px;
-          }
-
-          .collection-footer {
-            gap: 14px;
-            padding: 20px 5px;
-          }
-
-          .collection-label {
-            font-size: 9px;
-            letter-spacing: 2px;
-          }
-        }
-
-        @media (max-width: 380px) {
-          .stage {
-            height: 75vh;
-            min-height: 430px;
-          }
-
-          .stage-content {
-            top: 25px;
-            left: 12px;
-            max-width: 58%;
-          }
-
-          .stage-content h1 {
-            font-size: 21px;
-          }
-
-          .stage-content p {
-            font-size: 8px;
-          }
-
-          .bg-model {
-            width: 46%;
-          }
-
-          .model-front {
-            height: 73%;
-          }
-
-          .model-back-1 {
-            right: 19%;
-            height: 64%;
-          }
-
-          .model-back-2 {
-            right: 38%;
-            height: 55%;
-          }
-
-          .model-ghost {
-            right: 57%;
-            height: 47%;
-          }
-
-          .product-image {
-            height: 90px;
-          }
-
-          .product h3 {
-            font-size: 7px;
-          }
-
-          .collection-footer {
-            gap: 11px;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .bg-model,
-          .bg-model.entering {
-            transition: none;
-            animation: none;
-          }
-        }
-      `}</style>
-
-      <main className="page">
-        <section className="hero">
-          <div className="stage">
-            <div className="stage-content">
-              <h1>{collection.title}</h1>
-              <p>{collection.description}</p>
-            </div>
-
-            <div className="models">
-              {POSITIONS.map((_, index) => {
-                const model = MODELS[index];
-                const slot = (index + tick) % POSITIONS.length;
-                const entering = slot === 0 && tick > 0;
-
-                return (
-                  <img
-                    key={`${model.id}-${index}`}
-                    src={model.image}
-                    alt={`${model.id} dress model`}
-                    className={`bg-model ${POSITIONS[slot]} ${
-                      entering ? "entering" : ""
-                    }`}
-                    draggable="false"
-                  />
-                );
-              })}
-            </div>
-
-            <div className="stage-controls">
-              <button
-                className="pause-button"
-                onClick={() => setPaused((prev) => !prev)}
-                aria-label={paused ? "Play animation" : "Pause animation"}
-              >
-                {paused ? "▶" : "Ⅱ"}
-              </button>
-
-              <span>
-                {paused ? "ANIMATION PAUSED" : "NEW SEASON COLLECTION"}
-              </span>
-            </div>
-          </div>
-
-          <aside className="sidebar">
-            <div className="side-title">FEATURED ITEMS</div>
-
-            {collection.products.map((product) => (
-              <div className="product" key={product.name}>
-                <div className="product-image">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    loading="lazy"
-                  />
-                </div>
-
-                <h3>{product.name}</h3>
-                <p>{product.price}</p>
-              </div>
-            ))}
-          </aside>
-        </section>
-
-        <div className="collection-footer">
-          {COLLECTIONS.map((item, index) => (
-            <button
-              key={item.title}
-              className={`collection-dot ${
-                step === index ? "active" : ""
-              }`}
-              onClick={() => goToCollection(index)}
-              aria-label={`Show ${item.title}`}
+      <style>{styles}</style>
+
+      <main
+        className="lumiere"
+        onTouchStart={(e) => {
+          touchStart.current = e.touches[0].clientX;
+        }}
+        onTouchEnd={(e) => {
+          if (touchStart.current === null) return;
+
+          const dx = e.changedTouches[0].clientX - touchStart.current;
+
+          if (Math.abs(dx) > 50) {
+            go(
+              (cur + (dx < 0 ? 1 : -1) + ITEMS.length) % ITEMS.length
+            );
+          }
+
+          touchStart.current = null;
+        }}
+      >
+        <header className="lumiere-header">
+          LUMIÈRE
+        </header>
+
+        <div className="lumiere-dust">
+          {dust.map((p, i) => (
+            <i
+              key={i}
+              style={{
+                left: `${p.left}%`,
+                top: `${p.top}%`
+              }}
             />
           ))}
-
-          <span className="collection-label">{collection.title}</span>
         </div>
+
+        <section className="lumiere-stage">
+          <div className="lumiere-glow" />
+
+          <div className="lumiere-chars">
+            {ITEMS.map((item, i) => {
+              const offset =
+                ((i - cur + ITEMS.length + half) % ITEMS.length) - half;
+
+              const distance = Math.abs(offset);
+
+              const scale =
+                distance === 0 ? 1 :
+                distance === 1 ? 0.48 : 0.36;
+
+              return (
+                <div
+                  key={item.name}
+                  className="lumiere-char"
+                  onClick={() => go(i)}
+                  style={{
+                    transform: `translate(-50%, -50%) translateX(calc(var(--gap) * ${offset})) scale(${scale})`,
+                    opacity:
+                      distance === 0 ? 1 :
+                      distance === 1 ? 0.9 : 0.6,
+                    zIndex: 10 - distance
+                  }}
+                >
+                  {item.img ? (
+                    <img
+                      src={item.img}
+                      alt={`${item.name} ${item.it}`}
+                      draggable="false"
+                    />
+                  ) : (
+                    <Figure color={item.color} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className={`lumiere-card ${cardOut ? "out" : ""}`}>
+            <small>{current.tag}</small>
+
+            <h2>
+              {current.name}
+              <em>{current.it}</em>
+            </h2>
+
+            <p>{current.desc}</p>
+          </div>
+        </section>
+
+        <nav className="lumiere-nav">
+          {ITEMS.map((item, i) => (
+            <button
+              key={item.name}
+              className={cur === i ? "on" : ""}
+              onClick={() => go(i)}
+            >
+              {item.name} {item.it}
+            </button>
+          ))}
+        </nav>
       </main>
     </>
   );
