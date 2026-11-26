@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 
 const ITEMS = [
@@ -297,7 +296,7 @@ const styles = `
 
 @media (max-width: 768px) {
   .lumiere {
-    --gap: clamp(100px, 28vw, 165px);
+    --gap: 21vw;
     --char-top: 50%;
     --char-h: 34dvh;
     --char-max: 280px;
@@ -398,7 +397,7 @@ const styles = `
 
 @media (max-width: 480px) {
   .lumiere {
-    --gap: clamp(95px, 27vw, 125px);
+    --gap: 21vw;
     --char-h: 29dvh;
     --char-max: 230px;
     --card-w: 88vw;
@@ -453,7 +452,7 @@ const styles = `
 
 @media (max-width: 360px) {
   .lumiere {
-    --gap: 95px;
+    --gap: 20vw;
     --char-h: 26dvh;
     --char-max: 195px;
     --card-w: 90vw;
@@ -482,7 +481,7 @@ const styles = `
 
 @media (max-height: 520px) and (orientation: landscape) {
   .lumiere {
-    --gap: 90px;
+    --gap: min(19vw, 90px); /* FIXED: pazhaiya 90px */
     --char-top: 50%;
     --char-h: 62dvh;
     --char-max: 280px;
@@ -685,7 +684,7 @@ export default function App() {
 
               const scale =
                 distance === 0 ? 1 :
-                distance === 1 ? 0.48 : 0.36;
+                distance === 1 ? 0.5 : 0.4;
 
               return (
                 <div
@@ -696,7 +695,7 @@ export default function App() {
                     transform: `translate(-50%, -50%) translateX(calc(var(--gap) * ${offset})) scale(${scale})`,
                     opacity:
                       distance === 0 ? 1 :
-                      distance === 1 ? 0.9 : 0.6,
+                      distance === 1 ? 0.9 : 0.7,
                     zIndex: 10 - distance
                   }}
                 >
